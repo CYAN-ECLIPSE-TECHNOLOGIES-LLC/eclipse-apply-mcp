@@ -1,0 +1,90 @@
+{
+ "boards": [
+  {
+   "source": "greenhouse",
+   "board": "stripe",
+   "jobs": 719
+  },
+  {
+   "source": "ashby",
+   "board": "ramp",
+   "jobs": 167
+  },
+  {
+   "source": "lever",
+   "board": "palantir",
+   "jobs": 309
+  }
+ ],
+ "steps": {
+  "ingest": {
+   "name": "Jordan Example",
+   "skills": 8,
+   "roles": 3,
+   "version": "sha256:8a993448fcac"
+  },
+  "policy_snapshot": "pol_aed964a55f48",
+  "top_match": {
+   "title": "Backend Engineer, Ops Engineering",
+   "company": "Ramp",
+   "score": 89,
+   "rationale": [
+    "title fit 40/40: matches target role(s) ['Backend Engineer']",
+    "skills overlap 19/30: job text names 5 profile skills ['Python', 'Go', 'PostgreSQL', 'CI/CD', 'AWS']",
+    "comp 15/15: published comp up to 284900 >= floor 100000",
+    "location 15/15: no location constraint in policy"
+   ]
+  },
+  "refusal": {
+   "status": "refused",
+   "reasons": [
+    "BLOCKLIST: Ramp is on the policy blocklist"
+   ],
+   "receipt_seq": 4,
+   "note": "Refusals are first-class outcomes \u2014 nothing was prepared, and the refusal itself is on the record."
+  },
+  "prepared": {
+   "status": "prepared",
+   "diff_hash": "sha256:5c237cedbd2e2760",
+   "truthful": true
+  },
+  "approval": {
+   "status": "submitted_dry_run",
+   "transmitted": false
+  },
+  "receipts_total": 8,
+  "receipt_chain_valid": true,
+  "dry_run_receipt": {
+   "mode": "DRY-RUN",
+   "transmitted": false,
+   "plain_language": "DRY-RUN: a Greenhouse application for Senior Software Engineer, Product Velocity at Stripe was built and validated but NOT sent. No employer received anything.",
+   "diff_hash": "sha256:5c237cedbd2e2760",
+   "policy_snapshot": "pol_252cbf5dc460"
+  },
+  "tracker_counts": {
+   "prepared": 0,
+   "approved": 0,
+   "rejected": 0,
+   "submitted_dry_run": 1,
+   "closed": 0
+  },
+  "refusals_on_record": 1
+ },
+ "tool_count": 13,
+ "tools": [
+  "ingest_resume",
+  "set_policy",
+  "get_policy",
+  "search_jobs",
+  "match_jobs",
+  "prepare_application",
+  "approve_application",
+  "reject_application",
+  "list_receipts",
+  "get_tracker",
+  "pause",
+  "resume",
+  "delete_my_data"
+ ],
+ "boards_ok": 3
+}
