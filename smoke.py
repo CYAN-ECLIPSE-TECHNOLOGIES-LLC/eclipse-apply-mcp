@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Eclipse Apply MCP
+# Copyright © 2026 Cyan Eclipse Technologies LLC · cetech.ai
+# Eclipse Apply v0.1 — LIVE smoke test.
+
 """Eclipse Apply v0.1 — LIVE smoke test.
 
 Drives the real MCP server over stdio JSON-RPC against REAL public job
@@ -157,3 +161,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Eclipse Apply MCP · © 2026 Cyan Eclipse Technologies LLC · cetech.ai

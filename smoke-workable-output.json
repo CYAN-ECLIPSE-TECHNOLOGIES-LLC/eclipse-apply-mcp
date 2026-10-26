@@ -1,0 +1,58 @@
+{
+ "fixture_board": {
+  "source": "workable",
+  "board": "epignosis",
+  "company": "Epignosis",
+  "raw_jobs": 12,
+  "raw_unique_shortcodes": 10
+ },
+ "steps": {
+  "discovered": 12,
+  "crosscheck_mismatches": [],
+  "remote_jobs_live": 1,
+  "sample_job": {
+   "job_id": "workable:epignosis:DA7A1817D2",
+   "company": "Epignosis",
+   "title": "Account Manager",
+   "location": "Athens, Greece",
+   "remote": false,
+   "url": "https://apply.workable.com/j/DA7A1817D2",
+   "posted_date": "2026-10-20"
+  },
+  "description_coverage": {
+   "note": "widget feed carries no description field; adapter honestly yields empty description_text",
+   "raw_has_description_key": false
+  },
+  "top_eligible": {
+   "title": "Generalist, Product-Minded Software Engineer (Junior - Mid level)",
+   "company": "Epignosis",
+   "score": 70
+  },
+  "prepared": {
+   "status": "prepared",
+   "diff_hash": "sha256:c181d96a4dd034ce",
+   "truthful": true
+  },
+  "approval_hold": {
+   "status": "approved",
+   "application_id": "app_054dcc6a58",
+   "held": true,
+   "hold_reason": "no_submission_adapter_v0.1",
+   "source": "workable",
+   "transmitted": false,
+   "submission_mode": "DRY-RUN",
+   "receipt_seq": 4,
+   "plain_language": "APPROVED AND HELD: your application for Generalist, Product-Minded Software Engineer (Junior - Mid level) at Epignosis (workable) was approved but NOT sent \u2014 v0.1 can only dry-run Greenhouse submissions, and nothing was transmitted to the employer.",
+   "note": "Held in 'approved' state for owner review. It will not move or transmit on its own; a workable submission path is future gated work (live-submit stays OFF in v0.1)."
+  },
+  "receipts_total": 4,
+  "receipt_chain_valid": true,
+  "tracker_counts": {
+   "prepared": 0,
+   "approved": 1,
+   "rejected": 0,
+   "submitted_dry_run": 0,
+   "closed": 0
+  }
+ }
+}

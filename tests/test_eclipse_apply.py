@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Eclipse Apply MCP
+# Copyright © 2026 Cyan Eclipse Technologies LLC · cetech.ai
+# Eclipse Apply v0.1 — unit tests. Run: python3 -m unittest discover tests
+
 """Eclipse Apply v0.1 — unit tests. Run: python3 -m unittest discover tests"""
 import sys
 import unittest
@@ -85,6 +89,49 @@ class TestAdapters(unittest.TestCase):
         jobs = discovery.workable("acme", lambda u: payload)
         self.assertEqual(jobs[0]["company"], "Acme Co")
         self.assertEqual(jobs[0]["location"], "Austin, US")
+        self.assertFalse(jobs[0]["remote"])
+
+    def test_workable_duplicate_shortcode_locations(self):
+        # Live boards reuse one shortcode across locations (EB-03,
+        # 2026-10-26). Each location must survive as its own record.
+        payload = {"name": "Multi Co", "jobs": [
+            {"shortcode": "DUP1", "title": "Software Engineer",
+             "city": "Athens", "country": "Greece", "telecommuting": False,
+             "url": "https://apply.workable.com/j/DUP1",
+             "created_at": "2026-10-01"},
+            {"shortcode": "DUP1", "title": "Software Engineer",
+             "city": "Heraklion", "country": "Greece",
+             "telecommuting": False,
+             "url": "https://apply.workable.com/j/DUP1",
+             "created_at": "2026-10-01"}]}
+        jobs = discovery.workable("multico", lambda u: payload)
+        self.assertEqual(len(jobs), 2)
+        ids = [j["job_id"] for j in jobs]
+        self.assertEqual(len(set(ids)), 2)
+        self.assertIn("workable:multico:DUP1-athens", ids)
+        self.assertIn("workable:multico:DUP1-heraklion", ids)
+        self.assertEqual({j["location"] for j in jobs},
+                         {"Athens, Greece", "Heraklion, Greece"})
+
+    def test_workable_telecommuting_flag(self):
+        # Real widget payloads (EB-03 live smoke, 2026-10-26) carry NO
+        # "telework" key and NO description — the remote flag is
+        # "telecommuting". A regression here silently marks real remote
+        # jobs on-site.
+        payload = {"name": "Real Co", "jobs": [
+            {"shortcode": "W2", "title": "Support Engineer",
+             "city": "Athens", "country": "Greece", "telecommuting": True,
+             "url": "https://apply.workable.com/j/W2",
+             "created_at": "2026-10-01"},
+            {"shortcode": "W3", "title": "Office Manager",
+             "city": "Athens", "country": "Greece", "telecommuting": False,
+             "url": "https://apply.workable.com/j/W3",
+             "created_at": "2026-10-01"}]}
+        jobs = discovery.workable("realco", lambda u: payload)
+        self.assertTrue(jobs[0]["remote"])
+        self.assertFalse(jobs[1]["remote"])
+        self.assertEqual(jobs[0]["description_text"], "")
+        self.assertEqual(jobs[0]["posted_date"], "2026-10-01")
 
 
 class TestResumeParse(unittest.TestCase):
@@ -205,6 +252,43 @@ class TestFlowAndReceipts(unittest.TestCase):
         self.assertFalse(sub[0]["detail"]["transmitted"])
         self.assertIn("NOT sent", sub[0]["detail"]["plain_language"])
 
+    def test_approve_non_greenhouse_hold(self):
+        # EB-03 polish: approving a non-Greenhouse application returns a
+        # structured hold (not a bare note) and transmits nothing.
+        wk_job = dict(GOOD_JOB, job_id="workable:acme:W1",
+                      source="workable", board="acme")
+        st = fresh_state(policy_args=BASE_POLICY)
+        st["jobs"][wk_job["job_id"]] = wk_job
+        prep = S.t_prepare_application(st, {"job_id": wk_job["job_id"]})
+        self.assertEqual(prep["status"], "prepared")
+        out = S.t_approve_application(st, {"application_id":
+                                           prep["application_id"]})
+        self.assertEqual(out["status"], "approved")
+        self.assertTrue(out["held"])
+        self.assertEqual(out["hold_reason"], "no_submission_adapter_v0.1")
+        self.assertEqual(out["source"], "workable")
+        self.assertFalse(out["transmitted"])
+        self.assertEqual(out["submission_mode"], "DRY-RUN")
+        self.assertIn("NOT sent", out["plain_language"])
+        app = st["applications"][prep["application_id"]]
+        self.assertEqual(app["status"], "approved")
+        self.assertEqual(app["history"], ["prepared", "approved"])
+        self.assertEqual(app["hold"]["source"], "workable")
+        self.assertFalse(app["hold"]["transmitted"])
+        appr_seqs = [r["seq"] for r in st["receipts"]
+                     if r["type"] == "application_approved"]
+        self.assertEqual(out["receipt_seq"], appr_seqs[0])
+        types = [r["type"] for r in st["receipts"]]
+        self.assertNotIn("application_submitted_dry_run", types)
+        appr = [r for r in st["receipts"]
+                if r["type"] == "application_approved"][0]
+        self.assertTrue(appr["detail"]["held"])
+        self.assertFalse(appr["detail"]["transmitted"])
+        tracker = S.t_get_tracker(st, {})
+        self.assertEqual(tracker["counts"]["approved"], 1)
+        self.assertEqual(tracker["applications"][0]["hold"]["source"],
+                         "workable")
+
     def test_reject(self):
         st = fresh_state(policy_args=BASE_POLICY)
         st["jobs"][GOOD_JOB["job_id"]] = GOOD_JOB
@@ -235,3 +319,5 @@ class TestFlowAndReceipts(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# Eclipse Apply MCP · © 2026 Cyan Eclipse Technologies LLC · cetech.ai

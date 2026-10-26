@@ -42,6 +42,16 @@ Positioning: *the auto-apply tool that shows its work.*
   Lever, Ashby and Workable boards (the same unauthenticated feeds that
   power company careers pages). Smoke-verified against real boards
   (Stripe, Ramp, Palantir — 1,195 jobs pulled in the recorded run).
+  Workable live-verified 2026-10-26 (EB-03, `smoke-workable.py` vs the
+  Epignosis board: 12 postings, every normalized record cross-checked
+  against the raw widget payload). That smoke caught two real adapter
+  defects, both fixed + regression-tested: the live payload's remote
+  flag is `telecommuting`, not `telework`; and multi-location postings
+  share one shortcode, which collided in the job cache (now suffixed
+  per location). Approving a non-Greenhouse application returns a
+  structured APPROVED-AND-HELD response (`held`, `hold_reason`,
+  `transmitted: false`, `receipt_seq`) — the application stays in
+  `approved` for owner review and nothing transmits.
 - **Submission is DRY-RUN ONLY.** The Greenhouse adapter constructs and
   validates the exact submission payload, records it in the receipt, and
   **transmits nothing**. There is deliberately no code path in v0.1 that
@@ -92,8 +102,9 @@ Positioning: *the auto-apply tool that shows its work.*
 
 ```bash
 python3 server.py            # MCP over stdio, stdlib only, no dependencies
-python3 -m unittest discover -s tests   # 19 tests
+python3 -m unittest discover -s tests   # 22 tests
 python3 smoke.py             # live smoke vs real boards (writes smoke-output.json)
+python3 smoke-workable.py    # EB-03 live Workable-board smoke (writes smoke-workable-output.json)
 ```
 
 State persists in `state.json` beside the server (override with

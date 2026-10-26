@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Eclipse Apply MCP
+# Copyright © 2026 Cyan Eclipse Technologies LLC · cetech.ai
+
 """Eclipse Apply MCP — v0.1.0.
 
 Powered by Cyan Eclipse Technologies (cetech.ai).
@@ -600,14 +603,43 @@ def t_approve_application(state, args):
                 "receipt_seq": r["seq"]}
     app["status"] = "approved"
     app["history"].append("approved")
-    emit_receipt(state, "application_approved",
-                 {"application_id": app["id"], "job_id": app["job_id"],
-                  "approved_by": "owner"})
-    if app["job"]["source"] != "greenhouse":
+    source = app["job"]["source"]
+    held = source != "greenhouse"
+    if held:
+        # v0.1 has a submission adapter for Greenhouse only. A non-
+        # Greenhouse approval is a HOLD, not a dead end: the application
+        # stays in 'approved', the hold is stored on the record and in
+        # the receipt, and the caller gets the same structured fields a
+        # dry-run submission returns (transmitted, mode, receipt_seq).
+        app["hold"] = {
+            "reason": "no_submission_adapter_v0.1",
+            "source": source,
+            "detail": f"v0.1 dry-run submission covers Greenhouse only; "
+                      f"no {source} submission adapter exists yet",
+            "transmitted": False}
+    r = emit_receipt(state, "application_approved",
+                     {"application_id": app["id"], "job_id": app["job_id"],
+                      "approved_by": "owner", "source": source,
+                      "held": held,
+                      "hold_reason": (app["hold"]["reason"] if held
+                                      else None),
+                      "transmitted": False})
+    if held:
         return {"status": "approved", "application_id": app["id"],
-                "note": f"v0.1 dry-run submission adapter covers Greenhouse "
-                        f"only; this job is from {app['job']['source']} — "
-                        f"approved and held, nothing transmitted."}
+                "held": True, "hold_reason": app["hold"]["reason"],
+                "source": source, "transmitted": False,
+                "submission_mode": SUBMISSION_MODE,
+                "receipt_seq": r["seq"],
+                "plain_language": f"APPROVED AND HELD: your application "
+                        f"for {app['job']['title']} at "
+                        f"{app['job']['company']} ({source}) was approved "
+                        f"but NOT sent — v0.1 can only dry-run Greenhouse "
+                        f"submissions, and nothing was transmitted to the "
+                        f"employer.",
+                "note": "Held in 'approved' state for owner review. It "
+                        "will not move or transmit on its own; a "
+                        f"{source} submission path is future gated work "
+                        f"(live-submit stays OFF in v0.1)."}
     payload = build_greenhouse_payload(state, app)
     app["payload"] = payload
     if not payload["validation"]["valid"]:
@@ -664,7 +696,8 @@ def t_get_tracker(state, args):
     apps = [{"id": a["id"], "job_id": a["job_id"], "title": a["job"]["title"],
              "company": a["job"]["company"], "status": a["status"],
              "history": a["history"], "score": a["match"]["score"],
-             "diff_hash": a["diff_hash"], "created_at": a["created_at"]}
+             "diff_hash": a["diff_hash"], "created_at": a["created_at"],
+             "hold": a.get("hold")}
             for a in state["applications"].values()]
     refused = sum(1 for r in state["receipts"]
                   if r["type"] == "application_refused")
@@ -738,7 +771,7 @@ TOOLS = {
                             "Policy-check, then build a PREPARED application: tailored resume (verbatim facts, re-ordered) + verifiable diff. Policy failures return a recorded refusal with reasons.",
                             {"job_id": {"type": "string"}}, ["job_id"]),
     "approve_application": (t_approve_application,
-                            "Owner approves a prepared application. For Greenhouse jobs this builds + validates the submission payload and records a DRY-RUN submission receipt. v0.1 transmits NOTHING.",
+                            "Owner approves a prepared application. For Greenhouse jobs this builds + validates the submission payload and records a DRY-RUN submission receipt. For any other source it returns a structured APPROVED-AND-HELD response (held=true, transmitted=false, hold_reason, receipt_seq) — the application stays in 'approved' for owner review. v0.1 transmits NOTHING.",
                             {"application_id": {"type": "string"}}, ["application_id"]),
     "reject_application": (t_reject_application,
                            "Owner rejects a prepared/approved application; the rejection is receipted.",
@@ -819,3 +852,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Eclipse Apply MCP · © 2026 Cyan Eclipse Technologies LLC · cetech.ai
