@@ -1,4 +1,4 @@
-# OWNER-HANDS — eclipse-apply PyPI launch
+# OWNER-HANDS — cyan-eclipse-apply PyPI launch (renamed from eclipse-apply, 2026-10-28)
 
 Everything in this file is done **by the owner, in the owner's
 browser**. The package is built and locally proven (wheel + sdist,
@@ -9,14 +9,14 @@ project yet.
 > **Stop rule:** no step below creates or hands over an API token.
 > Publishing runs on Trusted Publishing (OIDC) only.
 
-## Trusted Publisher for `eclipse-apply` (pending publisher)
+## Trusted Publisher for `cyan-eclipse-apply` (pending publisher)
 
 On <https://pypi.org/manage/account/publishing/> → "Add a new pending
 publisher" → **GitHub** tab. Enter these strings **exactly**:
 
 | Field | Value |
 |---|---|
-| PyPI Project Name | `eclipse-apply` |
+| PyPI Project Name | `cyan-eclipse-apply` |
 | GitHub Repository Owner | `CYAN-ECLIPSE-TECHNOLOGIES-LLC` |
 | GitHub Repository Name | `eclipse-apply-mcp` |
 | GitHub Workflow Name | `publish-pypi.yml` |

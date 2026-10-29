@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "eclipse-apply"
+name = "cyan-eclipse-apply"
 version = "0.1.0"
 description = "The auto-apply tool that shows its work — policy-scoped autonomy, review-first, receipts for everything, and a resume it can prove it never embellished."
 readme = "PYPI_README.md"

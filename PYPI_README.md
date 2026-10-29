@@ -1,4 +1,4 @@
-# eclipse-apply
+# cyan-eclipse-apply
 
 mcp-name: io.github.CYAN-ECLIPSE-TECHNOLOGIES-LLC/apply
 
@@ -27,14 +27,14 @@ append-only, hash-chained ledger.
 ## Run it
 
 ```console
-$ pip install eclipse-apply
+$ pip install cyan-eclipse-apply
 $ eclipse-apply           # MCP over stdio, Python stdlib only
 ```
 
 MCP client config:
 
 ```json
-{ "mcpServers": { "eclipse-apply": { "command": "uvx", "args": ["eclipse-apply"] } } }
+{ "mcpServers": { "cyan-eclipse-apply": { "command": "uvx", "args": ["--from", "cyan-eclipse-apply", "eclipse-apply"] } } }
 ```
 
 ## Tools (13)
